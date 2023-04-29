@@ -1,49 +1,38 @@
 # _CHDKPTP-MAKESHOOTER_
 
+### Шаг 1. Установка CHDK
+Для установки на chdk на фотоаппарат, необходимо:
+
++ Загрузить совместимую версию пришивки;
++ Отформатировать CD карту;
++ Поместить файлы прошивки на карту;
++ Вставить карту в фотоаппарат;
++ В режиме _play_ зайти в настройки и выбрать _Update Firmware_;
++ Выключть камеру;
++ Перевести карту в режим _Lock_ механическим способом;
+
+Подробнее [здесь]("https://chdk.fandom.com/wiki/Prepare_your_SD_card") (Method 3 - Using EOSCard to make the SD card bootable).
+
+###  Шаг 2. Установка chdkptp.
+```bash
+yay -S chdkptp
+```
+###  Шаг 3. Снимок из командой оболочки.
 Для того чтобы сделать фото с помощью камеры, подключенной по _USB_, с помощью утилиты _chdkptp_, необходимо выполнить команду:
 ```bash
 chdkptp -c -e"remoteshoot -dng '<path>'"
 ```
-
 Где -с - подключение к камере, a -e указывает, какую команду необходимо выполнить.
+Так же можно использовать интерактивную оболочку.
 
-# Реализация
-```java
-public class DefaultShootMaker implements ShootMaker{
+```bash
+chdkptp -i
+___> connect
+___> rec
+___> remoteshoot -dng '<path>'
+```
 
-    public Process process;
-    public BufferedReader input;
-    public BufferedWriter output;
-
-    private void executeCommand(String command) throws IOException {
-        // Отправляем в stdin процесса команду.
-        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream()));
-        out.write(command + "\n");
-        out.flush();
-        System.out.println(this.input.readLine());
-    }
-
-    public void connect() throws IOException {
-        ProcessBuilder pb = new ProcessBuilder();
-        // Вызываем утилиту chdkptp в режиме интерактивной оболчки.
-        pb.command("/bin/bash", "-c", "/usr/bin/chdkptp -i");
-        this.process = pb.start();
-        this.input = new BufferedReader( new InputStreamReader(process.getInputStream()) );
-        this.output = new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream()));
-        this.executeCommand("connect");
-    }
-
-    public void makeShoot(String filepath) throws IOException{
-        // Переводим камеру в режим записи.
-        this.executeCommand("rec");
-        // Делаем снимок.
-        this.executeCommand("remoteshoot -dng '" + filepath + "'");
-    }
-    public void destroy() throws IOException {
-        this.executeCommand("disconnect");
-        if(this.process != null){
-            process.destroy();
-        }
-    }
-}
+## Запуск и сборка.
+```bash
+[chdk]$ mvn compile exec:java -Dexec.mainClass="org.example.Main" -Dexec.args="~/ 1.1 10"
 ```
