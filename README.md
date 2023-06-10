@@ -1,38 +1,37 @@
-# _CHDKPTP-MAKESHOOTER_
+# _MAKESHOOTER_
 
-### Шаг 1. Установка CHDK
-Для установки на chdk на фотоаппарат, необходимо:
-
-+ Загрузить совместимую версию пришивки;
-+ Отформатировать CD карту;
-+ Поместить файлы прошивки на карту;
-+ Вставить карту в фотоаппарат;
-+ В режиме _play_ зайти в настройки и выбрать _Update Firmware_;
-+ Выключть камеру;
-+ Перевести карту в режим _Lock_ механическим способом;
-
-Подробнее [здесь]("https://chdk.fandom.com/wiki/Prepare_your_SD_card") (Method 3 - Using EOSCard to make the SD card bootable).
-
-###  Шаг 2. Установка chdkptp.
-```bash
-yay -S chdkptp
-```
-###  Шаг 3. Снимок из командой оболочки.
-Для того чтобы сделать фото с помощью камеры, подключенной по _USB_, с помощью утилиты _chdkptp_, необходимо выполнить команду:
-```bash
-chdkptp -c -e"remoteshoot -dng '<path>'"
-```
-Где -с - подключение к камере, a -e указывает, какую команду необходимо выполнить.
-Так же можно использовать интерактивную оболочку.
+### Зависимости
++ ffmpeg (n6.0);
++ gphoto2 (2.5.28);
++ libgphoto2 (2.5.30);
++ libgphoto2_port (0.12.1);
 
 ```bash
-chdkptp -i
-___> connect
-___> rec
-___> remoteshoot -dng '<path>'
+$ pacman -S ffmpeg gphoto2 libgphoto2
 ```
 
-## Запуск и сборка.
+###  Описание работы.
+Даже если у камеры есть режим *Серийной съемки* без настройки _eosremoterelease_,
+реализовать удаленную съемку не представляется возможным.
+
+Для обхода данной особенности камеры, можно использовать не режим *Серийной съемки*,
+а запись видео, с последующей его обработкой.
+
+Алгоритм действий:
++ Определение длительности съемки;
++ Производится потоковый захват видео с камеры в формате mjpeg;
++ Произодится разделение видео на кадры с помощью ffmpeg;
++ Удаление ненужных кадров;
+
+
+## Быстрый запуск.
 ```bash
-[chdk]$ mvn compile exec:java -Dexec.mainClass="org.example.Main" -Dexec.args="~/ 1.1 10"
+[chdkptp]$ mvn compile exec:java -Dexec.mainClass="org.example.Main" -Dexec.args="/home/ergnoore/f 0.1 0.1 0.5 1"
+```
+
+## Быстрый запуск.
+```bash
+[chdkptp]$ mvn clean install
+[chdkptp]$ mvn dependency:copy-dependencies
+[chdkptp]$ java -cp target/chdk-1.0-SNAPSHOT.jar:dependency org.example.Main /home/ergnoore/f 0.1 0.1 0.5 1
 ```
